@@ -1,0 +1,58 @@
+{
+  "service": "filebrowser",
+  "enabled": true,
+  "port": 8080,
+  "binary": "/usr/local/emhttp/plugins/unraid-api/filebrowser/filebrowser",
+  "database": "/boot/config/plugins/unraid-api/filebrowser/database.db",
+  "config": "/boot/config/plugins/unraid-api/filebrowser/config.json",
+  "auth": {
+    "method": "proxy",
+    "header": "X-Unraid-User"
+  },
+  "roots": [
+    {
+      "name": "User Shares",
+      "path": "/mnt/user",
+      "writable": true,
+      "description": "User shares accessible to all users"
+    },
+    {
+      "name": "Cache",
+      "path": "/mnt/cache",
+      "writable": true,
+      "description": "Cache drive for temporary files"
+    },
+    {
+      "name": "Disks",
+      "path": "/mnt/disk*",
+      "writable": true,
+      "description": "Individual disk access"
+    },
+    {
+      "name": "Boot",
+      "path": "/boot",
+      "writable": false,
+      "description": "Boot device (read-only for security)"
+    }
+  ],
+  "features": {
+    "thumbnails": true,
+    "previews": true,
+    "search": true,
+    "sharing": true,
+    "websocket": true,
+    "recycleBin": true
+  },
+  "limits": {
+    "maxFileSize": "10GB",
+    "maxUploadSize": "1GB",
+    "rateLimit": {
+      "requests": 100,
+      "windowMs": 60000
+    }
+  },
+  "logging": {
+    "level": "info",
+    "file": "/boot/config/plugins/unraid-api/filebrowser/filebrowser.log"
+  }
+}

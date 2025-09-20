@@ -65,6 +65,10 @@ try {
     await $`pnpm run build`;
     // Copy app files to plugin directory
 
+    // Setup FileBrowser binary
+    console.log('Setting up FileBrowser...');
+    await $`zx ./scripts/setup-filebrowser.ts`;
+
     // Get package details
     const packageJson = await readFile('./package.json', 'utf-8');
     const parsedPackageJson = JSON.parse(packageJson) as ApiPackageJson;

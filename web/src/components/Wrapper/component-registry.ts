@@ -146,4 +146,9 @@ export const componentMappings: ComponentMapping[] = [
     selector: 'unraid-api-status-manager',
     appId: 'api-status-manager',
   },
+  {
+    component: defineAsyncComponent(() => import('../FileManager.standalone.vue')),
+    selector: 'unraid-file-manager',
+    appId: 'file-manager',
+  },
 ];
