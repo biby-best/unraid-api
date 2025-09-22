@@ -78,7 +78,7 @@ export class FileManagerController {
             targetPath = targetPath.replace(/^\/filemanager/, '') || '/';
         } else if (targetPath.startsWith('/static')) {
             // Direct static asset requests: /static/assets/file.js -> /static/assets/file.js
-            targetPath = targetPath;
+            // No change needed for static paths
         }
 
         const targetUrl = `${fileManagerUrl}${targetPath}`;
@@ -119,7 +119,11 @@ export class FileManagerController {
             // Copy response headers
             response.headers.forEach((value, key) => {
                 // Skip some headers that might cause issues with proxying
-                if (!['transfer-encoding', 'connection', 'keep-alive', 'content-encoding'].includes(key.toLowerCase())) {
+                if (
+                    !['transfer-encoding', 'connection', 'keep-alive', 'content-encoding'].includes(
+                        key.toLowerCase()
+                    )
+                ) {
                     res.header(key, value);
                 }
             });
@@ -140,7 +144,11 @@ export class FileManagerController {
                 const html = await response.text();
                 const rewrittenHtml = this.rewriteHtmlPaths(html);
                 return res.send(rewrittenHtml);
-            } else if (contentType.includes('application/javascript') || contentType.includes('text/javascript') || req.url.endsWith('.js')) {
+            } else if (
+                contentType.includes('application/javascript') ||
+                contentType.includes('text/javascript') ||
+                req.url.endsWith('.js')
+            ) {
                 // Handle JavaScript files specifically
                 const text = await response.text();
                 this.logger.debug(`JS file size: ${text.length} bytes for ${req.url}`);

@@ -1,6 +1,0 @@
-Menu="About:40"
-Title="File Manager"
-Icon="icon-folder"
-Tag="folder"
----
-<unraid-file-manager></unraid-file-manager>
