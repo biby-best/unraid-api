@@ -174,6 +174,43 @@ const validateSourceDir = async (validatedEnv: TxzEnv) => {
   await $`chmod +x ${apiDir}/dist/*.js`;
 };
 
+const ensureFileBrowserBinary = async () => {
+  console.log("Ensuring FileBrowser binary is available");
+  
+  const fileBrowserBinary = join(startingDir, "source", pluginName, "usr/local/unraid-api/filebrowser");
+  const fileBrowserSource = join(startingDir, "api", "dev", "data", "filebrowser", "filebrowser");
+  
+  // Check if FileBrowser binary exists in source
+  if (!existsSync(fileBrowserSource)) {
+    console.log("FileBrowser binary not found, downloading...");
+    
+    // Create directory if it doesn't exist
+    await $`mkdir -p ${join(startingDir, "api", "dev", "data", "filebrowser")}`;
+    
+    // Download FileBrowser binary (Linux x64)
+    const fileBrowserUrl = "https://github.com/filebrowser/filebrowser/releases/latest/download/linux-amd64-filebrowser.tar.gz";
+    const tempDir = join(startingDir, "temp", "filebrowser");
+    
+    await $`mkdir -p ${tempDir}`;
+    await $`curl -L ${fileBrowserUrl} -o ${join(tempDir, "filebrowser.tar.gz")}`;
+    await $`cd ${tempDir} && tar -xzf filebrowser.tar.gz`;
+    
+    // Copy the binary to the source directory
+    await $`cp ${join(tempDir, "filebrowser")} ${fileBrowserSource}`;
+    await $`chmod +x ${fileBrowserSource}`;
+    
+    // Clean up temp directory
+    await $`rm -rf ${tempDir}`;
+  }
+  
+  // Copy FileBrowser binary to plugin directory
+  await $`mkdir -p ${join(startingDir, "source", pluginName, "usr/local/unraid-api")}`;
+  await $`cp ${fileBrowserSource} ${fileBrowserBinary}`;
+  await $`chmod +x ${fileBrowserBinary}`;
+  
+  console.log("FileBrowser binary bundled successfully");
+};
+
 const buildTxz = async (validatedEnv: TxzEnv) => {
   await validateSourceDir(validatedEnv);
   
@@ -198,6 +235,7 @@ const buildTxz = async (validatedEnv: TxzEnv) => {
   
   await Promise.all([
     ensureNodeJs(),
+    ensureFileBrowserBinary(),
   ]);
 
   // Create package - must be run from within the pre-pack directory

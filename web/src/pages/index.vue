@@ -13,6 +13,7 @@ import type { SendPayloads } from '@unraid/shared-callbacks';
 import WelcomeModalCe from '~/components/Activation/WelcomeModal.standalone.vue';
 import ConnectSettingsCe from '~/components/ConnectSettings/ConnectSettings.standalone.vue';
 import DowngradeOsCe from '~/components/DowngradeOs.standalone.vue';
+import FileManagerCe from '~/components/FileManager/FileManager.standalone.vue';
 import HeaderOsVersionCe from '~/components/HeaderOsVersion.standalone.vue';
 import LogViewerCe from '~/components/Logs/LogViewer.standalone.vue';
 import ModalsCe from '~/components/Modals.standalone.vue';
@@ -197,6 +198,11 @@ watch(
           <hr class="border-muted" />
           <h2 class="font-mono text-xl font-semibold">Log Viewer Component</h2>
           <LogViewerCe />
+        </div>
+        <div class="bg-background">
+          <hr class="border-muted" />
+          <h2 class="font-mono text-xl font-semibold">File Manager Component</h2>
+          <FileManagerCe />
         </div>
       </div>
     </div>

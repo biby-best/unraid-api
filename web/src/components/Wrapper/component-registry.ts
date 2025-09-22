@@ -72,6 +72,11 @@ export const componentMappings: ComponentMapping[] = [
     appId: 'log-viewer',
   },
   {
+    component: defineAsyncComponent(() => import('../FileManager/FileManager.standalone.vue')),
+    selector: 'unraid-file-manager',
+    appId: 'file-manager',
+  },
+  {
     component: defineAsyncComponent(() => import('../SsoButton.standalone.vue')),
     selector: 'unraid-sso-button',
     appId: 'sso-button',

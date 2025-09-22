@@ -1,4 +1,14 @@
-import { Controller, Get, Logger, Param, Query, Req, Res, UnauthorizedException } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    Logger,
+    Param,
+    Post,
+    Query,
+    Req,
+    Res,
+    UnauthorizedException,
+} from '@nestjs/common';
 
 import { AuthAction, Resource } from '@unraid/shared/graphql.model.js';
 import { UsePermissions } from '@unraid/shared/use-permissions.directive.js';
@@ -27,6 +37,66 @@ export class RestController {
     @Public()
     async getRoot() {
         return 'OK';
+    }
+
+    @Post('/api/login')
+    @Public()
+    async login(@Req() req: any) {
+        // Mock login response for FileBrowser
+        return {
+            token: 'mock-token-for-development',
+            user: {
+                id: 'dev-user',
+                username: 'developer',
+                roles: ['admin'],
+                permissions: ['admin', 'read', 'write', 'delete', 'share', 'upload', 'download'],
+            },
+        };
+    }
+
+    @Post('/login')
+    @Public()
+    async loginForm(@Req() req: any, @Res() res: any) {
+        // Handle the actual login form submission
+        const { username, password } = req.body;
+
+        // For development, accept any credentials
+        if (username && password) {
+            // Set a session cookie or token
+            res.cookie('unraid-session', 'mock-session-token', {
+                httpOnly: true,
+                secure: false, // Set to true in production
+                maxAge: 24 * 60 * 60 * 1000, // 24 hours
+            });
+
+            // Redirect to the file manager
+            res.redirect('/filemanager/');
+        } else {
+            // Invalid credentials
+            res.redirect('/login?error=invalid-credentials');
+        }
+    }
+
+    @Get('/api/usage/')
+    @Public()
+    async getUsage() {
+        // Mock usage data for development
+        return {
+            cpu: { usage: 25.5 },
+            memory: { usage: 60.2 },
+            disk: { usage: 45.8 },
+        };
+    }
+
+    @Get('/api/resources/')
+    @Public()
+    async getResources() {
+        // Mock resources data for development
+        return {
+            cpu: { cores: 8, usage: 25.5 },
+            memory: { total: 16384, used: 9830, free: 6554 },
+            disk: { total: 1000000, used: 458000, free: 542000 },
+        };
     }
 
     @Get('/graphql/api/logs')

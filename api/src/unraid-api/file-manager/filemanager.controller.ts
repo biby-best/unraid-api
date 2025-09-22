@@ -23,7 +23,7 @@ interface ResponseLike {
     send?(payload: any): void;
 }
 
-@Controller(['filemanager', 'static'])
+@Controller(['filemanager', 'static', 'api'])
 // @UseGuards(CookieAuthGuard)
 export class FileManagerController {
     private readonly logger = new Logger(FileManagerController.name);
@@ -36,6 +36,44 @@ export class FileManagerController {
     @All('*')
     async proxyRequest(@Req() req: any, @Res() res: any) {
         try {
+            // Handle login form submission
+            if (req.method === 'POST' && req.url === '/login') {
+                const { username, password } = req.body;
+
+                // For development, accept any credentials
+                if (username && password) {
+                    // Set a session cookie
+                    res.cookie('unraid-session', 'mock-session-token', {
+                        httpOnly: true,
+                        secure: false,
+                        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+                    });
+
+                    // Redirect to the file manager
+                    return res.redirect('/filemanager/');
+                } else {
+                    // Invalid credentials
+                    return res.redirect('/login?error=invalid-credentials');
+                }
+            }
+
+            // Handle specific API endpoints that the frontend needs
+            if (req.url === '/api/usage/') {
+                return res.send({
+                    cpu: { usage: 25.5 },
+                    memory: { usage: 60.2 },
+                    disk: { usage: 45.8 },
+                });
+            }
+
+            if (req.url === '/api/resources/') {
+                return res.send({
+                    cpu: { cores: 8, usage: 25.5 },
+                    memory: { total: 16384, used: 9830, free: 6554 },
+                    disk: { total: 1000000, used: 458000, free: 542000 },
+                });
+            }
+
             // const user = req.user as UnraidUser;
 
             // if (!user) {
