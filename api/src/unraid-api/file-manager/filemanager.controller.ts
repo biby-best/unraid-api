@@ -1,10 +1,12 @@
 import { All, Controller, Logger, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 
+import { Public } from '@app/unraid-api/auth/public.decorator.js';
 import { CookieAuthGuard } from '@app/unraid-api/file-manager/auth/cookie-auth.guard.js';
 import {
     TokenBridgeService,
     UnraidUser,
 } from '@app/unraid-api/file-manager/auth/token-bridge.service.js';
+import { UnraidAuthService } from '@app/unraid-api/file-manager/auth/unraid-auth.service.js';
 import { ProxyService } from '@app/unraid-api/file-manager/proxy/proxy.service.js';
 
 // Minimal request/response interfaces (app uses Fastify)
@@ -24,13 +26,14 @@ interface ResponseLike {
 }
 
 @Controller(['filemanager', 'static', 'api'])
-// @UseGuards(CookieAuthGuard)
+@UseGuards(CookieAuthGuard)
 export class FileManagerController {
     private readonly logger = new Logger(FileManagerController.name);
 
     constructor(
         private readonly proxyService: ProxyService,
-        private readonly tokenBridgeService: TokenBridgeService
+        private readonly tokenBridgeService: TokenBridgeService,
+        private readonly unraidAuthService: UnraidAuthService
     ) {}
 
     @All('*')
@@ -40,17 +43,45 @@ export class FileManagerController {
             if (req.method === 'POST' && req.url === '/login') {
                 const { username, password } = req.body;
 
-                // For development, accept any credentials
+                // Validate credentials against Unraid system
                 if (username && password) {
-                    // Set a session cookie
-                    res.cookie('unraid-session', 'mock-session-token', {
-                        httpOnly: true,
-                        secure: false,
-                        maxAge: 24 * 60 * 60 * 1000, // 24 hours
-                    });
+                    const user = await this.unraidAuthService.authenticateUser(username, password);
 
-                    // Redirect to the file manager
-                    return res.redirect('/filemanager/');
+                    if (user) {
+                        // Check if user has file manager access
+                        const hasAccess = await this.unraidAuthService.hasFileManagerAccess(user);
+
+                        if (hasAccess) {
+                            // Set a session cookie with user info
+                            res.cookie('unraid-session', 'mock-session-token', {
+                                httpOnly: true,
+                                secure: false,
+                                maxAge: 24 * 60 * 60 * 1000, // 24 hours
+                            });
+
+                            // Store user info in session (in production, use proper session storage)
+                            res.cookie('unraid-user', JSON.stringify(user), {
+                                httpOnly: true,
+                                secure: false,
+                                maxAge: 24 * 60 * 60 * 1000, // 24 hours
+                            });
+
+                            this.logger.log(
+                                `User ${username} authenticated and granted file manager access`
+                            );
+
+                            // Redirect to the file manager
+                            return res.redirect('/filemanager/');
+                        } else {
+                            this.logger.warn(
+                                `User ${username} authenticated but denied file manager access`
+                            );
+                            return res.redirect('/login?error=insufficient-permissions');
+                        }
+                    } else {
+                        this.logger.warn(`Authentication failed for user: ${username}`);
+                        return res.redirect('/login?error=invalid-credentials');
+                    }
                 } else {
                     // Invalid credentials
                     return res.redirect('/login?error=invalid-credentials');
@@ -74,16 +105,17 @@ export class FileManagerController {
                 });
             }
 
-            // const user = req.user as UnraidUser;
+            // Get authenticated user from Unraid
+            const user = req.user as UnraidUser;
 
-            // if (!user) {
-            //     throw new UnauthorizedException('User not authenticated');
-            // }
+            if (!user) {
+                throw new UnauthorizedException('User not authenticated');
+            }
 
-            // // Validate user has access to file manager
-            // if (!this.tokenBridgeService.validateFileBrowserAccess(user)) {
-            //     throw new UnauthorizedException('Insufficient permissions for file manager');
-            // }
+            // Validate user has access to file manager
+            if (!this.tokenBridgeService.validateFileBrowserAccess(user)) {
+                throw new UnauthorizedException('Insufficient permissions for file manager');
+            }
 
             await this.proxyToFileBrowser(req, res);
         } catch (error) {

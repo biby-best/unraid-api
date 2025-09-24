@@ -57,6 +57,7 @@ declare module 'vue' {
     DummyServerSwitcher: typeof import('./src/components/DummyServerSwitcher.vue')['default']
     Edit: typeof import('./src/components/Docker/Edit.vue')['default']
     EffectivePermissions: typeof import('./src/components/ApiKey/EffectivePermissions.vue')['default']
+    'FileManager.standalone': typeof import('./src/components/FileManager/FileManager.standalone.vue')['default']
     FileViewer: typeof import('./src/components/FileViewer.vue')['default']
     FilteredLogModal: typeof import('./src/components/Logs/FilteredLogModal.vue')['default']
     HeaderContent: typeof import('./src/components/Docker/HeaderContent.vue')['default']

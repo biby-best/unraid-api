@@ -63,15 +63,14 @@ import { UnraidFileModifierModule } from '@app/unraid-api/unraid-file-modifier/u
     ],
     controllers: [],
     providers: [
-        // Temporarily disabled for file manager testing
-        // {
-        //     provide: APP_GUARD,
-        //     useClass: AuthenticationGuard,
-        // },
-        // {
-        //     provide: APP_GUARD,
-        //     useClass: AuthZGuard,
-        // },
+        {
+            provide: APP_GUARD,
+            useClass: AuthenticationGuard,
+        },
+        {
+            provide: APP_GUARD,
+            useClass: AuthZGuard,
+        },
     ],
 })
 export class AppModule {}
