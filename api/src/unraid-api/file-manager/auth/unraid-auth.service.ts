@@ -1,14 +1,10 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 
-import { AuthService } from '@app/unraid-api/auth/auth.service.js';
 import { UnraidUser } from '@app/unraid-api/file-manager/auth/token-bridge.service.js';
-import { UserAccount } from '@app/unraid-api/graph/user/user.model.js';
 
 @Injectable()
 export class UnraidAuthService {
     private readonly logger = new Logger(UnraidAuthService.name);
-
-    constructor(private readonly authService: AuthService) {}
 
     /**
      * Authenticate user credentials against Unraid system

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
+import { AuthModule } from '@app/unraid-api/auth/auth.module.js';
 import { CookieAuthGuard } from '@app/unraid-api/file-manager/auth/cookie-auth.guard.js';
 import { TokenBridgeService } from '@app/unraid-api/file-manager/auth/token-bridge.service.js';
 import { UnraidAuthService } from '@app/unraid-api/file-manager/auth/unraid-auth.service.js';
@@ -9,7 +10,7 @@ import { FileManagerService } from '@app/unraid-api/file-manager/filemanager.ser
 import { ProxyService } from '@app/unraid-api/file-manager/proxy/proxy.service.js';
 
 @Module({
-    imports: [ConfigModule],
+    imports: [ConfigModule, AuthModule],
     controllers: [FileManagerController],
     providers: [
         FileManagerService,

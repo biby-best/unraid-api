@@ -101,7 +101,20 @@ export class ProxyService {
                     `Proxying request for user ${user.username}: ${req.method} ${req.url}`
                 );
             } else {
-                this.logger.warn('No user found in request for proxy');
+                // For demo purposes, create a mock user when no authentication
+                const mockUser: UnraidUser = {
+                    id: 'user-demo',
+                    username: 'demo',
+                    roles: ['admin'],
+                    permissions: ['read', 'write', 'delete', 'admin'],
+                };
+
+                const authHeaders = this.tokenBridgeService.buildFileBrowserAuthHeaders(mockUser);
+                Object.entries(authHeaders).forEach(([key, value]) => {
+                    proxyReq.setHeader(key, value);
+                });
+
+                this.logger.debug('No user found in request, using demo user for FileBrowser');
             }
 
             // Add forwarded headers

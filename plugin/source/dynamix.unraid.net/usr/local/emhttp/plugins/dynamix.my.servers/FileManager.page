@@ -1,0 +1,6 @@
+Menu="Tools"
+Title="File Manager"
+Icon="icon-folder"
+Tag="folder"
+---
+<unraid-file-manager></unraid-file-manager>
